@@ -1,2 +1,2 @@
-# Incertidumbres-y-datos---Mediciones-Mec-nicas-Grupo-2
+# Incertidumbres-y-datos---Mediciones-Mecánicas-Grupo-2
 olapapuspanoestarmandandocodigosawhatsapquefastido
