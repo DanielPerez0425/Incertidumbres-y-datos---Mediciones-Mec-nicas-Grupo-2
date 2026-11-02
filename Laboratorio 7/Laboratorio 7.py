@@ -16,7 +16,7 @@ m_A=0.5152
 m_B=0.5176
 delta_t=0.02
 inc_t=0.001
-inc_Tracker_t=1/160
+inc_Tracker_t=1/120
 
 #----------------------------------------------------------------------------------------------------------------------------------------#
 ##Conservacion del momento lineal
@@ -138,7 +138,7 @@ def incertconsmomlin(inoe,repomov):
                 redondeo=round(i,3)
                 if redondeo==0:
                     redondeo=round(i,4)
-        redondeos.append(redondeo)
+        redondeos.append(float(redondeo))
         
     return print(VelAf,VelBf,m_A,m_B,redondeos[5],redondeos[7],inc_m,inc_pTf,redondeos[13])
 
@@ -151,11 +151,11 @@ def incertconsmomlin(inoe,repomov):
 ##Conservacion de la energía
 #----------------------------------------------------------------------------------------------------------------------------------------#
 
-T=df2.iloc[1:43,0].values
-Y=df2.iloc[1:43,1].values
-V=df2.iloc[1:43,2].values
-K=df2.iloc[1:43,3].values
-KR=df2.iloc[1:43,4].values
+T=df2.iloc[1:41,0].values
+Y=df2.iloc[1:41,1].values
+V=df2.iloc[1:41,2].values
+K=df2.iloc[1:41,3].values
+KR=df2.iloc[1:41,5].values
 
 t=np.array(T,dtype=float)
 y=np.array(Y,dtype=float)
@@ -212,7 +212,7 @@ for i in inc_v:
              redondeo=round(i,3)
              if redondeo==0:
               redondeo=round(i,4)
-    redondeosv.append(redondeo)
+    redondeosv.append(float(redondeo))
 
 redondeosEk=[]
 for i in inc_Ek:
@@ -223,7 +223,7 @@ for i in inc_Ek:
              redondeo=round(i,3)
              if redondeo==0:
               redondeo=round(i,4)
-    redondeosEk.append(redondeo)
+    redondeosEk.append(float(redondeo))
 
 
 redondeosEp=[]
@@ -235,7 +235,7 @@ for i in inc_Ep:
              redondeo=round(i,3)
              if redondeo==0:
               redondeo=round(i,4)
-    redondeosEp.append(redondeo)
+    redondeosEp.append(float(redondeo))
 
 
 redondeosEkr=[]
@@ -247,7 +247,7 @@ for i in inc_Ekr:
              redondeo=round(i,3)
              if redondeo==0:
               redondeo=round(i,4)
-    redondeosEkr.append(redondeo)
+    redondeosEkr.append(float(redondeo))
 
 redondeosEm=[]
 for i in inc_Em:
@@ -258,7 +258,7 @@ for i in inc_Em:
              redondeo=round(i,3)
              if redondeo==0:
               redondeo=round(i,4)
-    redondeosEm.append(redondeo)
+    redondeosEm.append(float(redondeo))
 
 
 print(f'Tiempo: {t}±{inc_Tracker_t}',
