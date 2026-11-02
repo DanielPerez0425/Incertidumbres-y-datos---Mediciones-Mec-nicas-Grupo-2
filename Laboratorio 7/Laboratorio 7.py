@@ -202,6 +202,8 @@ dEmdv=(7/5)*dEkdv
 
 inc_Em=np.sqrt((dEmdm*inc_m)**2+(dEmdy*inc_dist)**2+(dEmdv*inc_v)**2)
 
+E_cinetica=np.array(round(EK,4),dtype=float)
+
 
 redondeosv=[]
 for i in inc_v:
@@ -260,14 +262,16 @@ for i in inc_Em:
               redondeo=round(i,4)
     redondeosEm.append(float(redondeo))
 
+distancia_porcentual = abs((Em[-1] - Em[0]) / Em[0]) * 100
 
 print(f'Tiempo: {t}±{inc_Tracker_t}',
       f'Altura: {y}±{inc_dist}',
       f'Velocidad: {v}±{redondeosv}',
-      f'Energía Cinética: {Ek}±{redondeosEk}',
+      f'Energía Cinética: {E_cinetica}±{redondeosEk}',
       f'Energía potencial: {Ep}±{redondeosEp}',
-      f'Energía cinética rotacional: {Ekr}±{redondeosEkr}',
-      f'Energía mecánica: {Em}±{redondeosEm}')
+      f'Energía cinética rotacional: {EKR}±{redondeosEkr}',
+      f'Energía mecánica: {Em}±{redondeosEm}',
+      f'Pérdida de energía: {distancia_porcentual}%')
 
 #print(np.abs((Em[0]-Em[-1])/Em[0])*100)
 
@@ -291,5 +295,4 @@ plt.ylabel("$E_k$,$E_{kr}$,$E_p$,$E_m$")
 plt.title("E(J) vs t(s)")
 plt.legend()
 plt.grid(True)
-plt.savefig("Energías vs Tiempo")
-plt.show()
+#plt.show()
