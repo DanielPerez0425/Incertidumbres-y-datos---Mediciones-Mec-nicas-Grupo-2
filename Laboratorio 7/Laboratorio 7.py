@@ -283,10 +283,13 @@ print(f'Tiempo: {t}±{inc_Tracker_t}',
 
 plt.figure()
 plt.plot(t,EK,label="Energía cinética")
-plt.plot(t,Ep,label="Energía potencial")
 plt.plot(t,EKR,label="Energía cinética rotacional")
+plt.plot(t,Ep,label="Energía potencial")
 plt.plot(t,Em,label="Energía Mecánica")
+plt.xlabel("t")
+plt.ylabel("$E_k$,$E_{kr}$,$E_p$,$E_m$")
+plt.title("E(J) vs t(s)")
 plt.legend()
 plt.grid(True)
-
-#plt.show()
+plt.savefig("Energías vs Tiempo")
+plt.show()
