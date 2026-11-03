@@ -146,7 +146,7 @@ def incertconsmomlin(inoe,repomov):
     aux=VelAi*np.sqrt(m_A/(m_A+m_B))
           
     return print(
-                 f'{nombre} con 20Hz:',
+                 f'{nombre} con 50Hz:',
                  '\ bar{Delta x}_{Ai}=' f'{round(promAi,4)}±{redondeos[0]}m',
                  '\ bar{Delta x}{Af}=' f'{round(promAf,4)}±{redondeos[1]}m',
                  '\ bar{Delta x}{Bi}=' f'{round(promBi,4)}±{redondeos[2]}m',
