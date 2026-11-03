@@ -17,6 +17,10 @@ delta_t=0.02
 inc_t=0.001
 inc_Tracker_t=1/120
 
+print("-"*50)
+print("Conservación del momento lineal")
+print("-"*50)
+
 #----------------------------------------------------------------------------------------------------------------------------------------#
 #                                                        Conservacion del momento lineal
 #----------------------------------------------------------------------------------------------------------------------------------------#
@@ -138,28 +142,35 @@ def incertconsmomlin(inoe,repomov):
                 if redondeo==0:
                     redondeo=round(i,4)
         redondeos.append(float(redondeo))
-        
-    #return print(f'{nombre} con 20Hz:',
-    #            '\ bar{Delta x}_{Ai}=' f'{round(promAi,4)}±{redondeos[0]}m',
-    #             '\ bar{Delta x}{Af}=' f'{round(promAf,4)}±{redondeos[1]}m',
-    #             '\ bar{Delta x}{Bi}=' f'{round(promBi,4)}±{redondeos[2]}m',
-    #             '\ bar{Delta x}{B_f}=' f'{round(promBf,4)}±{redondeos[3]}m',
-    #             f'Velocidad inicial de la masa A: {round(VelAi,4)}±{redondeos[4]}m/s',
-    #             f'Velocidad final de la masa A: {round(VelAf,4)}±{redondeos[5]}m/s',
-    #             f'Velocidad inicial de la masa B: {round(VelBi,4)}±{redondeos[6]}m/s',
-    #             f'Velocidad final de la masa B: {round(VelBf,4)}±{redondeos[7]}m/s',
-    #             f'Momentum inicial de la masa A: {round(pAi,4)}±{redondeos[8]}Ns',
-    #             f'Momentum final de la masa A:{round(pAf,4)}±{redondeos[9]}Ns',
-    #             f'Momentum inicial de la masa B:{round(pBi,4)}±{redondeos[10]}Ns',
-    #             f'Momentum final de la masa B:{round(pBf,4)}±{redondeos[11]}Ns',
-    #             f'Momentum inicial del sistema:{round(pTi,4)}±{redondeos[12]}Ns',
-    #            f'Momentum final del sistema:{round(pTf,4)}±{redondeos[13]}Ns')
 
-#incertconsmomlin(1,1)
-#incertconsmomlin(1,2)
-#incertconsmomlin(2,1)
-#incertconsmomlin(2,2)
+    aux=VelAi*np.sqrt(m_A/(m_A+m_B))
+          
+    return print(
+                 f'{nombre} con 20Hz:',
+                 '\ bar{Delta x}_{Ai}=' f'{round(promAi,4)}±{redondeos[0]}m',
+                 '\ bar{Delta x}{Af}=' f'{round(promAf,4)}±{redondeos[1]}m',
+                 '\ bar{Delta x}{Bi}=' f'{round(promBi,4)}±{redondeos[2]}m',
+                 '\ bar{Delta x}{B_f}=' f'{round(promBf,4)}±{redondeos[3]}m',
+                 f'Velocidad inicial de la masa A: {round(VelAi,4)}±{redondeos[4]}m/s',
+                 f'Velocidad final de la masa A: {round(VelAf,4)}±{redondeos[5]}m/s',
+                 f'Velocidad inicial de la masa B: {round(VelBi,4)}±{redondeos[6]}m/s',
+                 f'Velocidad final de la masa B: {round(VelBf,4)}±{redondeos[7]}m/s',
+                 f'Momentum inicial de la masa A: {round(pAi,4)}±{redondeos[8]}Ns',
+                 f'Momentum final de la masa A:{round(pAf,4)}±{redondeos[9]}Ns',
+                 f'Momentum inicial de la masa B:{round(pBi,4)}±{redondeos[10]}Ns',
+                 f'Momentum final de la masa B:{round(pBf,4)}±{redondeos[11]}Ns',
+                 f'Momentum inicial del sistema:{round(pTi,4)}±{redondeos[12]}Ns',
+                 f'Momentum final del sistema:{round(pTf,4)}±{redondeos[13]}Ns'
+                 )
 
+incertconsmomlin(1,1)
+incertconsmomlin(1,2)
+incertconsmomlin(2,1)
+incertconsmomlin(2,2)
+
+print("-"*50)
+print("Conservación de la energía")
+print("-"*50)
 #----------------------------------------------------------------------------------------------------------------------------------------#
 #                                                         Conservacion de la energía
 #----------------------------------------------------------------------------------------------------------------------------------------#
@@ -301,9 +312,6 @@ for i in inc_Em:
     redondeosEm.append(float(redondeo))
 
 distancia_porcentual = abs((Em[-1] - Em[0]) / Em[0]) * 100
-
-print(t[13],dEmdm[13],dEmdv[13],dEmdy,inc_Em[13],redondeosEm[13])
-
 print(
       f'Tiempo: {t}±{inc_Tracker_t}',
       f'Altura: {y}±{inc_dist}',
@@ -335,5 +343,4 @@ plt.ylabel("$E_k$,$E_{kr}$,$E_p$,$E_m$")
 plt.title("E(J) vs t(s) con barras de error")
 plt.legend()
 plt.grid(True)
-plt.savefig("Energías vs Tiempo con barras de error")
 plt.show()
