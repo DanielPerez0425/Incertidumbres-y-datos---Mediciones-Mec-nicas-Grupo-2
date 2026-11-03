@@ -10,8 +10,7 @@ df2 = pd.read_excel(archivo_excel, sheet_name="Conservación de la energía", he
 g=9.81
 inc_m=0.0001
 inc_dist=0.0005
-m_canic=0.0069
-r_canic=0.0147
+m_canic=0.0058
 m_A=0.5152
 m_B=0.5176
 delta_t=0.02
@@ -19,7 +18,7 @@ inc_t=0.001
 inc_Tracker_t=1/120
 
 #----------------------------------------------------------------------------------------------------------------------------------------#
-##Conservacion del momento lineal
+#                                                        Conservacion del momento lineal
 #----------------------------------------------------------------------------------------------------------------------------------------#
 def incertconsmomlin(inoe,repomov):
     if inoe==1 and repomov==1:
@@ -140,7 +139,21 @@ def incertconsmomlin(inoe,repomov):
                     redondeo=round(i,4)
         redondeos.append(float(redondeo))
         
-    return print(VelAf,VelBf,m_A,m_B,redondeos[5],redondeos[7],inc_m,inc_pTf,redondeos[13])
+    #return print(f'{nombre} con 20Hz:',
+    #            '\ bar{Delta x}_{Ai}=' f'{round(promAi,4)}±{redondeos[0]}m',
+    #             '\ bar{Delta x}{Af}=' f'{round(promAf,4)}±{redondeos[1]}m',
+    #             '\ bar{Delta x}{Bi}=' f'{round(promBi,4)}±{redondeos[2]}m',
+    #             '\ bar{Delta x}{B_f}=' f'{round(promBf,4)}±{redondeos[3]}m',
+    #             f'Velocidad inicial de la masa A: {round(VelAi,4)}±{redondeos[4]}m/s',
+    #             f'Velocidad final de la masa A: {round(VelAf,4)}±{redondeos[5]}m/s',
+    #             f'Velocidad inicial de la masa B: {round(VelBi,4)}±{redondeos[6]}m/s',
+    #             f'Velocidad final de la masa B: {round(VelBf,4)}±{redondeos[7]}m/s',
+    #             f'Momentum inicial de la masa A: {round(pAi,4)}±{redondeos[8]}Ns',
+    #             f'Momentum final de la masa A:{round(pAf,4)}±{redondeos[9]}Ns',
+    #             f'Momentum inicial de la masa B:{round(pBi,4)}±{redondeos[10]}Ns',
+    #             f'Momentum final de la masa B:{round(pBf,4)}±{redondeos[11]}Ns',
+    #             f'Momentum inicial del sistema:{round(pTi,4)}±{redondeos[12]}Ns',
+    #            f'Momentum final del sistema:{round(pTf,4)}±{redondeos[13]}Ns')
 
 #incertconsmomlin(1,1)
 #incertconsmomlin(1,2)
@@ -148,7 +161,7 @@ def incertconsmomlin(inoe,repomov):
 #incertconsmomlin(2,2)
 
 #----------------------------------------------------------------------------------------------------------------------------------------#
-##Conservacion de la energía
+#                                                         Conservacion de la energía
 #----------------------------------------------------------------------------------------------------------------------------------------#
 
 T=df2.iloc[1:41,0].values
@@ -156,10 +169,16 @@ Y=df2.iloc[1:41,1].values
 V=df2.iloc[1:41,2].values
 K=df2.iloc[1:41,3].values
 KR=df2.iloc[1:41,5].values
+VX=df2.iloc[1:41,8].values
+VY=df2.iloc[1:41,9].values
+X=df2.iloc[1:41,7].values
 
 t=np.array(T,dtype=float)
 y=np.array(Y,dtype=float)
+x=np.array(X,dtype=float)
 v=np.array(V,dtype=float)
+vx=np.array(VX,dtype=float)
+vy=np.array(VY,dtype=float)
 Ek=np.array(K,dtype=float)
 Ekr=np.array(KR,dtype=float)
 
@@ -168,16 +187,37 @@ EK=(1/2)*m_canic*(v**2)
 EKR=(2/5)*EK
 Em=Ep+EK+EKR
 
-dvdx=np.zeros(len(t))
-dvdt=np.zeros(len(t))
-dvdx[0]=0
-dvdt[0]=0
+dvxdx=np.zeros(len(t))
+dvxdt=np.zeros(len(t))
+dvxdx[0]=0
+dvxdt[0]=0
 
 for i in range(1,len(t)-1):
-    dvdx[i]=1/(t[i+1]-t[i-1])
-    dvdt[i]=(y[i+1]-y[i-1])/((t[i+1]-t[i-1]))**2
+    dvxdx[i]=1/(t[i+1]-t[i-1])
+    dvxdt[i]=-(x[i+1]-x[i-1])/((t[i+1]-t[i-1]))**2
 
-inc_v=np.sqrt((dvdx*inc_dist)**2+(dvdt*inc_Tracker_t)**2)
+inc_vx=np.sqrt((dvxdx*inc_dist)**2+(dvxdt*inc_Tracker_t)**2)
+
+
+dvydy=np.zeros(len(t))
+dvydt=np.zeros(len(t))
+dvydy[0]=0
+dvydt[0]=0
+
+for i in range(1,len(t)-1):
+    dvydy[i]=1/(t[i+1]-t[i-1])
+    dvydt[i]=(y[i+1]-y[i-1])/((t[i+1]-t[i-1]))**2
+
+inc_vy=np.sqrt((dvydy*inc_dist)**2+(dvydt*inc_Tracker_t)**2)
+
+
+raiz=np.sqrt(vx**2+vy**2)
+dvdvx=vx/raiz
+dvdvy=vy/raiz
+dvdvx[0]=0
+dvdvy[0]=0
+
+inc_v=np.sqrt((dvdvx*inc_vx)**2+(dvdvy*inc_vy)**2)
 
 dEkdm=(1/2)*(v**2)
 dEkdv=m_canic*v
@@ -201,8 +241,6 @@ dEmdy=dEpdy
 dEmdv=(7/5)*dEkdv
 
 inc_Em=np.sqrt((dEmdm*inc_m)**2+(dEmdy*inc_dist)**2+(dEmdv*inc_v)**2)
-
-E_cinetica=np.array(round(EK,4),dtype=float)
 
 
 redondeosv=[]
@@ -264,35 +302,38 @@ for i in inc_Em:
 
 distancia_porcentual = abs((Em[-1] - Em[0]) / Em[0]) * 100
 
-print(f'Tiempo: {t}±{inc_Tracker_t}',
+print(t[13],dEmdm[13],dEmdv[13],dEmdy,inc_Em[13],redondeosEm[13])
+
+print(
+      f'Tiempo: {t}±{inc_Tracker_t}',
       f'Altura: {y}±{inc_dist}',
       f'Velocidad: {v}±{redondeosv}',
-      f'Energía Cinética: {E_cinetica}±{redondeosEk}',
+      f'Energía Cinética: {EK}±{redondeosEk}',
       f'Energía potencial: {Ep}±{redondeosEp}',
       f'Energía cinética rotacional: {EKR}±{redondeosEkr}',
       f'Energía mecánica: {Em}±{redondeosEm}',
-      f'Pérdida de energía: {distancia_porcentual}%')
-
-#print(np.abs((Em[0]-Em[-1])/Em[0])*100)
-
-#plt.figure()
-#plt.plot(t,y,label="Altura")
-#plt.legend()
-#plt.grid(True)
-
-#plt.figure()
-#plt.plot(t,v,label="Velocidad")
-#plt.legend()
-#plt.grid(True)
+      f'Pérdida porcentual de energía: {round(distancia_porcentual,2)}%'
+      )
 
 plt.figure()
-plt.plot(t,EK,label="Energía cinética")
-plt.plot(t,EKR,label="Energía cinética rotacional")
-plt.plot(t,Ep,label="Energía potencial")
-plt.plot(t,Em,label="Energía Mecánica")
-plt.xlabel("t")
-plt.ylabel("$E_k$,$E_{kr}$,$E_p$,$E_m$")
-plt.title("E(J) vs t(s)")
+plt.errorbar(t,y,xerr=inc_Tracker_t,yerr=inc_dist,fmt="o-",capsize=3,label="Altura")
 plt.legend()
 plt.grid(True)
-#plt.show()
+
+plt.figure()
+plt.errorbar(t,v,xerr=inc_Tracker_t,yerr=inc_v,fmt="o-",capsize=3,label="Velocidad")
+plt.legend()
+plt.grid(True)
+
+plt.figure()
+plt.errorbar(t[:-2],EK[:-2],xerr=inc_Tracker_t,yerr=inc_Ek[:-2],fmt="o-",capsize=3,label="Energía cinética")
+plt.errorbar(t[:-2],EKR[:-2],xerr=inc_Tracker_t,yerr=inc_Ekr[:-2],fmt="o-",capsize=3,label="Energía cinética rotacional")
+plt.errorbar(t[:-2],Ep[:-2],xerr=inc_Tracker_t,yerr=inc_Ep[:-2],fmt="o-",capsize=3,label="Energía potencial")
+plt.errorbar(t[:-2],Em[:-2],xerr=inc_Tracker_t,yerr=inc_Em[:-2],fmt="o-",capsize=3,label="Energía mecánica")
+plt.xlabel("t")
+plt.ylabel("$E_k$,$E_{kr}$,$E_p$,$E_m$")
+plt.title("E(J) vs t(s) con barras de error")
+plt.legend()
+plt.grid(True)
+plt.savefig("Energías vs Tiempo con barras de error")
+plt.show()
