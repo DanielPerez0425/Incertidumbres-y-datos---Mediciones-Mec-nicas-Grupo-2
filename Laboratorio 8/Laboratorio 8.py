@@ -134,7 +134,6 @@ def incertidumbres(alambre):
 
     return print(
                 f'{nombre}:',
-                f'N de disco: {N}',
                 f'Fuerzas: {F}±{inc_F}',
                 f'Elongaciones:{Elongaciones}±{inc_elongacion}',
                 f'Esfuerzos:{Esfuerzos}±{inc_esfuerzo}',
