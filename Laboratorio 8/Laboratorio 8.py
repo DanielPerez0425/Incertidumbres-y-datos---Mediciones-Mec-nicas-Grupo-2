@@ -55,7 +55,7 @@ def incertidumbres(alambre):
     # Incertidumbres
 
     inc_F=inc_m*g
-    inc_A=np.pi*(diametro/2)*inc_diametro
+    inc_A=2*np.pi*(diametro/2)*inc_diametro
 
     dElongdDelta=1/l_0
     dElongdl0=(-elong)/(l_0**2)
@@ -115,22 +115,44 @@ def incertidumbres(alambre):
 
     plt.figure()
     plt.errorbar(Elongaciones,Esfuerzos,xerr=inc_elongacion,yerr=inc_esfuerzo,fmt="o-",capsize=3,label="Original")
-    plt.errorbar(Elongaciones,youngajust,xerr=inc_elongacion,yerr=inc_yajuste,fmt="o-",capsize=3,label=f"Ajuste lineal y=({round(ModYoung*1e-9,4)}x{round(b*1e-9,4)})$10^9$")
+    if b>0:
+        plt.errorbar(Elongaciones,youngajust,xerr=inc_elongacion,yerr=inc_yajuste,fmt="o-",capsize=3,label=f"Ajuste lineal y=({round(ModYoung*1e-9,4)}x+{round(b*1e-9,4)})$10^9$")
+    else:
+        plt.errorbar(Elongaciones,youngajust,xerr=inc_elongacion,yerr=inc_yajuste,fmt="o-",capsize=3,label=f"Ajuste lineal y=({round(ModYoung*1e-9,4)}x{round(b*1e-9,4)})$10^9$")
     plt.title(f"Módulo de Young con {nombre}")
     plt.xlabel("Elongación")
     plt.ylabel("Esfuerzo(Pa)")
     plt.grid(True)
     plt.legend()
     plt.ticklabel_format(axis='x', style='sci', scilimits=(-5, -5), useMathText=True)
-    plt.show()
+    #plt.show()
 
     # Cálculo Teórico
 
     denslin=m_alamb/longitud
 
+    dDenslindm=1/longitud
+    dDenslindl=(-m_alamb)/(longitud**2)
+
+    inc_denslin=np.sqrt((dDenslindm*inc_m)**2+(dDenslindl*inc_reg)**2)
+
     f1=(1/(2*longitud))*np.sqrt(F/denslin)
 
-    youngteorico=(4*(longitud**2)*(f1**2)*denslin)/(atransv*Elongaciones)
+    df1dl=(-1/(2*(longitud**2)))*np.sqrt(F/denslin)
+    df1dF=1/(4*longitud*np.sqrt(F*denslin))
+    df1dDenslin=(-np.sqrt(F))/(4*longitud*(np.power(denslin,3/2)))
+
+    inc_f1=np.sqrt((df1dl*inc_reg)**2+(df1dF*inc_F)**2+(df1dDenslin*inc_denslin)**2)
+
+    Yf=(4*(longitud**2)*(f1**2)*denslin)/(atransv*Elongaciones)
+
+    dYfdl=(8*longitud*(f1**2)*denslin)/(atransv*Elongaciones)
+    dYfdf1=(8*(longitud**2)*f1*denslin)/(atransv*Elongaciones)
+    dYfdDenslin=(4*(longitud**2)*(f1**2))/(atransv*Elongaciones)
+    dYfdA=(-4*(longitud**2)*(f1**2)*denslin)/((atransv**2)*Elongaciones)
+    dYfdElong=(-4*(longitud**2)*(f1**2)*denslin)/((atransv)*(Elongaciones**2))
+
+    inc_Yf=np.sqrt((dYfdl*inc_reg)**2+(dYfdf1*inc_f1)**2+(dYfdDenslin*inc_denslin)**2+(dYfdA*inc_A)**2+(dYfdElong*inc_elongacion)**2)
 
     return print(
                 f'{nombre}:',
@@ -139,7 +161,7 @@ def incertidumbres(alambre):
                 f'Esfuerzos:{Esfuerzos}±{inc_esfuerzo}',
                 f'r^2={round(r2,4)}',
                 f'Módulo de Young=({round(ModYoung*1e-9,4)}±{round(Inc_Young*1e-9,4)})GPa',
-                f'Módulo de Young por frecuencia: {round(youngteorico[-5]*1e-9,4)}GPa',
+                f'Módulo de Young por frecuencia: {round(Yf[-5]*1e-9,4)}±{round(inc_Yf[-5]*1e-9,4)}GPa',
                 f'Ecuación de la recta: (y={ModYoung*1e-9}x+({b*1e-9}))10^9'
                 )
 
