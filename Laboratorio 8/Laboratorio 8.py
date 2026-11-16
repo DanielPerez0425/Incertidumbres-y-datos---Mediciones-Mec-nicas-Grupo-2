@@ -12,7 +12,7 @@ g=9.774
 inc_diametro=0.000001
 inc_micrometro=0.000005
 inc_reg=0.0001
-longitud=108.4
+longitud=1.084
 mu=1e-6
 
 def incertidumbres(alambre):
