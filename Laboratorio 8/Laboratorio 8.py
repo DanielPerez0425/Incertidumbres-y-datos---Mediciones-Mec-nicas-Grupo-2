@@ -8,92 +8,141 @@ archivo_excel = Path(__file__).resolve().parent / "Laboratorio 8.xlsx"
 df = pd.read_excel(archivo_excel, sheet_name="Esfuerzo vs Elongación", header=0, index_col=0)
 
 inc_m=0.001
-m_gancho=0.987
 g=9.774
 inc_diametro=0.000001
-inc_micrometro=0.000001
-diametro=0.000576
-radio=diametro/2
-atransv=np.pi*(radio**2)
+inc_micrometro=0.000005
+inc_reg=0.0001
+longitud=108.4
+mu=1e-6
 
-masas=df.iloc[6:18,3].values
-pesos=masas*g
-elongaciones=df.iloc[6:18,5].values
-fuerzas=[pesos[0]]
-for i in range(1,len(pesos)):
-    fuerzas.append(pesos[i]+fuerzas[i-1])
-F=np.array(fuerzas,dtype=float)
-esfuerzos=F/atransv
+def incertidumbres(alambre):
 
-Masas=np.array(masas,dtype=float)
-Pesos=np.array(pesos,dtype=float)
-Elongaciones=np.array(elongaciones,dtype=float)
-Esfuerzos=np.array(esfuerzos,dtype=float)
+    if alambre==1184:
+        nombre='Alambre 1184'
+        m_alamb=0.0035
+        l_0=0.621
+        masas=df.iloc[41:52,4].values
+        elong=df.iloc[41:52,8].values
 
-m,b=np.polyfit(Elongaciones,Esfuerzos,1)
-ajuste = linregress(Elongaciones, Esfuerzos)
-r = ajuste.rvalue       # Coeficiente de correlación lineal
-r2 = r**2               # Coeficiente de determinación
-youngajust=Elongaciones*m +b
+    if alambre==1172:
+        nombre='Alambre 1172'
+        m_alamb=0.0043
+        l_0=0.623
+        masas=df.iloc[57:68,4].values
+        elong=df.iloc[57:68,8].values
 
-# Incertidumbres
+    N=np.linspace(1,11,11)
+    elong=np.asarray(elong,dtype=float)
+    diametro=0.61/1000
+    radio=diametro/2
+    atransv=np.pi*(radio**2)
+    elongaciones=elong/l_0
 
-inc_F=inc_m*g
-inc_A=np.pi*(diametro/2)*inc_diametro
-inc_elongacion=inc_micrometro
+    fuerzas=masas*g
+    F=np.array(fuerzas,dtype=float)
+    esfuerzos=F/atransv
 
-dEsfdF=1/atransv
-dEsfdA=-F/(atransv**2)
+    Masas=np.array(masas,dtype=float)
+    Elongaciones=np.array(elongaciones,dtype=float)
+    Esfuerzos=np.array(esfuerzos,dtype=float)
 
-inc_esfuerzo=np.sqrt((dEsfdF*inc_F)**2+(dEsfdA*inc_A)**2)
+    m,b=np.polyfit(Elongaciones,Esfuerzos,1)
+    ajuste = linregress(Elongaciones, Esfuerzos)
+    r = ajuste.rvalue       # Coeficiente de correlación lineal
+    r2 = r**2               # Coeficiente de determinación
+    youngajust=Elongaciones*m +b
 
+    # Incertidumbres
 
-residuos = Esfuerzos - youngajust
-N = len(Esfuerzos)
-S_y = np.sqrt(np.sum(residuos**2) / (N - 2))
-Sxx=np.sum((Elongaciones-np.mean(Elongaciones))**2)
-suma_x_cuadrado = np.sum(Elongaciones**2)
-suma_x_cuadrado2 = (np.sum(Elongaciones))**2
-raiz=np.sqrt(N/((N*suma_x_cuadrado)-suma_x_cuadrado2))
-inc_young = S_y * raiz
-inc_yajuste = S_y * np.sqrt(1/N + (Elongaciones - np.mean(Elongaciones))**2 / Sxx)
+    inc_F=inc_m*g
+    inc_A=np.pi*(diametro/2)*inc_diametro
 
+    dElongdDelta=1/l_0
+    dElongdl0=(-elong)/(l_0**2)
 
+    inc_elongacion=np.sqrt((dElongdDelta*inc_micrometro)**2+(dElongdl0*inc_reg)**2)
+    
+    dEsfdF=1/atransv
+    dEsfdA=-F/(atransv**2)
 
-redondeosesf=[]
-for i in inc_esfuerzo:
-    redondeo=round(i,1)
-    if redondeo==0:
-         redondeo=round(i,2)
-         if redondeo==0:
-             redondeo=round(i,3)
-             if redondeo==0:
-              redondeo=round(i,4)
-    redondeosesf.append(float(redondeo))
+    inc_esfuerzo=np.sqrt((dEsfdF*inc_F)**2+(dEsfdA*inc_A)**2)
 
-redondeosajust=[]
-for i in inc_esfuerzo:
-    redondeo=round(i,1)
-    if redondeo==0:
-         redondeo=round(i,2)
-         if redondeo==0:
-             redondeo=round(i,3)
-             if redondeo==0:
-              redondeo=round(i,4)
-    redondeosajust.append(float(redondeo))
+    residuos = Esfuerzos - youngajust
+    N = len(Esfuerzos)
+    S_y = np.sqrt(np.sum(residuos**2) / (N - 2))
+    Sxx=np.sum((Elongaciones-np.mean(Elongaciones))**2)
+    suma_x_cuadrado = np.sum(Elongaciones**2)
+    suma_x_cuadrado2 = (np.sum(Elongaciones))**2
+    raiz=np.sqrt(N/((N*suma_x_cuadrado)-suma_x_cuadrado2))
+    inc_young = S_y * raiz
+    inc_yajuste = S_y * np.sqrt(1/N + (Elongaciones - np.mean(Elongaciones))**2 / Sxx)
 
+    redondeosesf=[]
+    for i in inc_esfuerzo:
+        redondeo=round(i,1)
+        if redondeo==0:
+            redondeo=round(i,2)
+            if redondeo==0:
+                redondeo=round(i,3)
+                if redondeo==0:
+                    redondeo=round(i,4)
+        redondeosesf.append(float(redondeo))
 
-ModYoung=round(m*1e-9,1)
-Inc_Young=round(inc_young*1e-9,1)
+    redondeoselong=[]
+    for i in inc_elongacion:
+        redondeo=round(i,1)
+        if redondeo==0:
+            redondeo=round(i,2)
+            if redondeo==0:
+                redondeo=round(i,3)
+            if redondeo==0:
+                    redondeo=round(i,4)
+        redondeoselong.append(float(redondeo))
 
-plt.figure()
-plt.errorbar(Elongaciones,Esfuerzos,xerr=inc_elongacion,yerr=inc_esfuerzo,fmt="o-",capsize=3,label="Original")
-plt.errorbar(Elongaciones,youngajust,xerr=inc_elongacion,yerr=inc_yajuste,fmt="o-",capsize=3,label=f"Ajuste lineal y=({ModYoung}x{b*1e-9})$10^9$")
-plt.title(f"Módulo de Young")
-plt.xlabel("Elongación(m)")
-plt.ylabel("Esfuerzo(Pa)")
-plt.grid(True)
-plt.legend()
-print(f'r^2={round(r2,4)}',f'Módulo de Young={ModYoung}±{Inc_Young}GPa',f'Ecuación de la recta: (y={ModYoung}x{b*1e-9})10^9')
-plt.ticklabel_format(axis='x', style='sci', scilimits=(-5, -5), useMathText=True)
-plt.show()
+    redondeosajust=[]
+    for i in inc_esfuerzo:
+        redondeo=round(i,1)
+        if redondeo==0:
+            redondeo=round(i,2)
+            if redondeo==0:
+                redondeo=round(i,3)
+                if redondeo==0:
+                    redondeo=round(i,4)
+        redondeosajust.append(float(redondeo))
+
+    ModYoung=round(m,1)
+    Inc_Young=round(inc_young,1)
+
+    plt.figure()
+    plt.errorbar(Elongaciones,Esfuerzos,xerr=inc_elongacion,yerr=inc_esfuerzo,fmt="o-",capsize=3,label="Original")
+    plt.errorbar(Elongaciones,youngajust,xerr=inc_elongacion,yerr=inc_yajuste,fmt="o-",capsize=3,label=f"Ajuste lineal y=({round(ModYoung*1e-9,4)}x{round(b*1e-9,4)})$10^9$")
+    plt.title(f"Módulo de Young con {nombre}")
+    plt.xlabel("Elongación")
+    plt.ylabel("Esfuerzo(Pa)")
+    plt.grid(True)
+    plt.legend()
+    plt.ticklabel_format(axis='x', style='sci', scilimits=(-5, -5), useMathText=True)
+    plt.show()
+
+    # Cálculo Teórico
+
+    denslin=m_alamb/longitud
+
+    f1=(1/(2*longitud))*np.sqrt(F/denslin)
+
+    youngteorico=(4*(longitud**2)*(f1**2)*denslin)/(atransv*Elongaciones)
+
+    return print(
+                f'{nombre}:',
+                f'N de disco: {N}',
+                f'Fuerzas: {F}±{inc_F}',
+                f'Elongaciones:{Elongaciones}±{inc_elongacion}',
+                f'Esfuerzos:{Esfuerzos}±{inc_esfuerzo}',
+                f'r^2={round(r2,4)}',
+                f'Módulo de Young=({round(ModYoung*1e-9,4)}±{round(Inc_Young*1e-9,4)})GPa',
+                f'Módulo de Young por frecuencia: {round(youngteorico[-5]*1e-9,4)}GPa',
+                f'Ecuación de la recta: (y={ModYoung*1e-9}x+({b*1e-9}))10^9'
+                )
+
+incertidumbres(1184)
+incertidumbres(1172)
